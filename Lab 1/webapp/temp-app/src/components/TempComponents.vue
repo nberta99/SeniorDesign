@@ -34,8 +34,8 @@ export default {
         async function getTempData() {
             let url = "http://localhost:3000/currTemp";
             Axios.get(url).then((response) => {
-            console.log(response.data)
-            response.data
+                console.log(response.data)
+                response.data
             })
         }
 

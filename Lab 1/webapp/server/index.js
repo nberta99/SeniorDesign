@@ -34,7 +34,8 @@ app.get('/ping', (req, res) => {
 })
 
 app.get('/currTemp', (req, res) => {
-    res.status(200).send(tempData[301])
+    res.header('Access-Control-Allow-Origin','*')
+    res.status(200).send(`${tempData[300]} °C`)
 })
 
 // Returns an array of length 300 of all temperature data point
@@ -46,13 +47,19 @@ app.get('/tempData', (req, res) => {
 // Gets a temperature reading from the box every second. If no reading then inserts null value
 setInterval(function() {
     // GET TEMPERATURE DATA FROM BOX (Should be in celcius)
-    var temp = Math.floor(Math.random() * 40) + 10;
+    var temp = Math.floor(Math.random() * 40) + 13;
     if (temp <= minTemp) {
         sendNotification(temp, 'min')
     } else if (temp >= maxTemp) {
         sendNotification(temp, 'max')
     }
-    tempData.push(temp) // Adds new temp from box to end of array
+
+    if (temp > 50) {
+        tempData.push(null)
+    } else {
+        tempData.push(temp) // Adds new temp from box to end of array
+    }
+    
     tempData.shift() // Removes first (oldest) element from array
 }, 1000);
 

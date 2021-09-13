@@ -22,7 +22,7 @@ export default {
     async function getTempData() {
       let url = "http://localhost:3000/tempData";
       Axios.get(url).then((response) => {
-        console.log(response.data)
+        // console.log(response.data)
         addData(tempChart, response.data)
         // this.$emit('currTemp', 434)
       })

@@ -1,10 +1,11 @@
 <template>
   <div class="temperature">
-    <h1>{{ mainTemp }}</h1>
+    <h1 id="currTempVal">No Current Temperature Data</h1>
   </div>
 </template>
 
 <script>
+import Axios from 'axios'
 
 export default {
   name: 'Temperature',
@@ -12,13 +13,29 @@ export default {
   },
   data() {
     return {
-      mainTemp: 'No Current Temperature Data'
     }
-  }, 
-  methods: {
+  },
+  mounted() {
+    const ctx = document.getElementById('currTempVal');
+
+    async function getTempData() {
+      let url = "http://localhost:3000/currTemp";
+      Axios.get(url).then((response) => {
+        // console.log(response.data)
+        if (response.data == null) {
+          ctx.innerHTML = "No Current Temperature Data"
+        } else {
+          ctx.innerHTML = response.data
+        }
+
+      })
+    }
+    
+    setInterval(function() {
+      getTempData()
+    }, 700)
   }
 }
-
 </script>
 
 <!-- Add "scoped" attribute to limit CSS to this component only -->
