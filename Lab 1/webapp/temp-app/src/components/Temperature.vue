@@ -1,13 +1,22 @@
 <template>
   <div class="temperature">
-    <h1>75.1</h1>
-    <button type="button" class="btn btn-info" onclick="changeUnit();">Change to Farenheit</button>
+    <h1>{{ mainTemp }}</h1>
   </div>
 </template>
 
 <script>
+
 export default {
-  name: 'Temperature'
+  name: 'Temperature',
+  components: {
+  },
+  data() {
+    return {
+      mainTemp: 'No Current Temperature Data'
+    }
+  }, 
+  methods: {
+  }
 }
 
 </script>

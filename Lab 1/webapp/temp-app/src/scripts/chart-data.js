@@ -20,6 +20,9 @@ export const tempChartData = {
         display: true,
         text: "Temperature Chart"
       },
+      animation: {
+        duration: 0
+      },
       responsive: true,
       lineTension: 1,
       scales: {

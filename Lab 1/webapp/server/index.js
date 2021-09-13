@@ -33,9 +33,13 @@ app.get('/ping', (req, res) => {
     res.status(200).send('pong') // Send box 'heartbeat'
 })
 
+app.get('/currTemp', (req, res) => {
+    res.status(200).send(tempData[301])
+})
+
 // Returns an array of length 300 of all temperature data point
 app.get('/tempData', (req, res) => {
-    res.header('Access-Control-Allow-Origin','*');
+    res.header('Access-Control-Allow-Origin','*')
     res.status(200).send(tempData)
 })
 

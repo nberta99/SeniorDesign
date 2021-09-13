@@ -1,20 +1,17 @@
 <template>
   <div id="app">
     <h2>Temperature Sensor</h2>
-    <Temperature/>
-    <Graph/>
+    <TempComponents/>
   </div>
 </template>
 
 <script>
-import Graph from './components/Graph.vue'
-import Temperature from "./components/Temperature.vue";
+import TempComponents from './components/TempComponents.vue'
 
 export default {
   name: 'App',
   components: {
-    Graph,
-    Temperature
+    TempComponents
   }
 }
 </script>

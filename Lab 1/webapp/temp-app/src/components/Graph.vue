@@ -18,21 +18,29 @@ export default {
   },
   mounted() {
     const ctx = document.getElementById('temperature-chart');
-    new Chart(ctx, this.tempChartData);
+    var tempChart = new Chart(ctx, this.tempChartData);
+    async function getTempData() {
+      let url = "http://localhost:3000/tempData";
+      Axios.get(url).then((response) => {
+        console.log(response.data)
+        addData(tempChart, response.data)
+        // this.$emit('currTemp', 434)
+      })
+    }
+
+    function addData(chart, data) {
+      // chart.data.labels.push("Temperature Readings");
+      chart.data.datasets.forEach((dataset) => {
+          dataset.data = data
+      });
+      chart.update();
+    }
+
+    setInterval(function() {
+      getTempData()
+    }, 700)
   }
 }
-
-async function getTempData() {
-    let url = "http://localhost:3000/tempData";
-    Axios.get(url).then((response) => {
-      console.log(response.data)
-      // tempChart.update()
-    })
-}
-
-setInterval(function() {
-  getTempData()
-}, 700)
 </script>
 
 <!-- Add "scoped" attribute to limit CSS to this component only -->
