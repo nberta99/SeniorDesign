@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width,initial-scale=1.0">
+    <link rel="icon" href="favicon.ico">
+    <title>Temperature Sensor</title>
+    <style>
+      #app {
+        font-family: Avenir, Helvetica, Arial, sans-serif;
+        -webkit-font-smoothing: antialiased;
+        -moz-osx-font-smoothing: grayscale;
+        text-align: center;
+        color: #2c3e50;
+        /*margin-top: 60px;*/
+      }
+      </style>
+  </head>
+  <body>
+    <div id="app">
+      <h2>Temperature Sensor</h2>
+      <h1>75.1</h1>
+      <button type="button" class="btn btn-info" onclick="changeUnit();">Change to Farenheit</button>
+      <div class="graph">
+        <canvas id="temperature-chart"></canvas>
+      </div>
+    </div>
+    <!-- built files will be auto injected -->
+  </body>
+</html>

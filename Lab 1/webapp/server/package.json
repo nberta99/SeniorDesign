@@ -1,0 +1,30 @@
+{
+  "name": "server",
+  "version": "1.0.0",
+  "description": "Webserver for Lab1 temperature sensing system",
+  "main": "index.js",
+  "dependencies": {
+    "express": "^4.17.1",
+    "nodemon": "^2.0.12",
+    "path": "^0.12.7"
+  },
+  "devDependencies": {},
+  "scripts": {
+    "start": "node index.js",
+    "dev": "npx nodemon index",
+    "test": "test"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/nberta99/SeniorDesign.git"
+  },
+  "keywords": [
+    "server"
+  ],
+  "author": "Nick Berta",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/nberta99/SeniorDesign/issues"
+  },
+  "homepage": "https://github.com/nberta99/SeniorDesign#readme"
+}
