@@ -9,30 +9,55 @@ import Chart from 'chart.js'
 import tempChartData from '../scripts/chart-data.js'
 import Axios from 'axios';
 
+var tempUnit = 'C'
+var updatedVal = false
+
 export default {
   name: 'Graph',
+  props: ['tempUnit'],
   data() {
     return {
       tempChartData: tempChartData
     }
   },
+  watch: {
+    tempUnit(val) {
+      tempUnit = val
+      updatedVal = true
+    }
+  },
   mounted() {
     const ctx = document.getElementById('temperature-chart');
+
     var tempChart = new Chart(ctx, this.tempChartData);
     async function getTempData() {
-      let url = "http://localhost:3000/tempData";
+      let url = "http://localhost:3000/tempData" + `?unit=${tempUnit}`
+      // console.log(tempUnit + " graph")
       Axios.get(url).then((response) => {
-        // console.log(response.data)
         addData(tempChart, response.data)
-        // this.$emit('currTemp', 434)
       })
     }
 
     function addData(chart, data) {
-      // chart.data.labels.push("Temperature Readings");
       chart.data.datasets.forEach((dataset) => {
           dataset.data = data
       });
+      if (updatedVal) {
+        changeAxes(chart)
+      }
+      chart.update();
+    }
+
+    function changeAxes(chart) {
+      if (tempUnit == 'C') {
+        chart.options.scales.yAxes[0].ticks.min = 10
+        chart.options.scales.yAxes[0].ticks.max = 50
+        chart.options.scales.yAxes[0].scaleLabel.labelString = 'Temperature (°C)'
+      } else if (tempUnit == 'F') {
+        chart.options.scales.yAxes[0].ticks.min = 50
+        chart.options.scales.yAxes[0].ticks.max = 122
+        chart.options.scales.yAxes[0].scaleLabel.labelString = 'Temperature (°F)'
+      }
       chart.update();
     }
 

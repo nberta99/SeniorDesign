@@ -1,48 +1,52 @@
 <template>
     <div>
-        <Temperature/>
+        <Temperature :tempUnit="tempUnit"/>
+        <ScreenWakeBtn/>
         <ToggleButton @isFarenheit="ChangeUnit($event)"/>
-        <Graph/>
+        <Graph :tempUnit="tempUnit"/>
     </div>
 </template>
 
 <script>
 import Graph from './Graph.vue'
 import Temperature from './Temperature.vue'
-import ToggleButton from './ToggleButton.vue'
-import Axios from 'axios';
+import ToggleButton from './ToggleBtn.vue'
+import ScreenWakeBtn from './ScreenWakeBtn.vue'
+// import Axios from 'axios';
+
+var tempUnit = 'C';
 
 export default {
     name: 'TempComponents',
     components: {
         Graph,
         Temperature,
-        ToggleButton
+        ToggleButton,
+        ScreenWakeBtn
+    },
+    data() {
+        return {
+            tempUnit: tempUnit
+        }
     },
     methods: {
-        UpdateCurrTemp(value) {
-            console.log(value)
-        },
+        // UpdateCurrTemp(value) {
+        //     // console.log(value)
+        // },
         ChangeUnit(value) {
+            // tempUnit = value
             if (value == true) {
                 this.mainTemp = '°F'
+                this.tempUnit = 'F'
+                tempUnit = 'F'
             } else {
                 this.mainTemp = '°C'
+                this.tempUnit = 'C'
+                tempUnit = 'C'
+            }
         }
     },
-    mounted() {
-        async function getTempData() {
-            let url = "http://localhost:3000/currTemp";
-            Axios.get(url).then((response) => {
-                console.log(response.data)
-                response.data
-            })
-        }
-
-        setInterval(function() {
-            getTempData()
-        }, 450)
-    }
+  mounted() {
   }
 }
 </script>

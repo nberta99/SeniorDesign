@@ -35,7 +35,7 @@ export const tempChartData = {
           },
           scaleLabel: {
             display: true,
-            labelString: 'Temperature'
+            labelString: 'Temperature (°C)'
           }
         }],
         xAxes: [{
