@@ -1,6 +1,6 @@
 <template>
   <div id="app">
-    <h2>Temperature Sensor</h2>
+    <h2>Temperature Sensor UI</h2>
     <TempComponents/>
   </div>
 </template>

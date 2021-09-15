@@ -6,7 +6,8 @@ const port = 3000
 app.use(express.json())
 app.use(express.urlencoded({ extended: true }))
 
-var tempData = Array(301).fill(null)
+var tempDataCelcius = Array(301).fill(null)
+var tempDataFarenheit = Array(301).fill(null)
 var lastAliveTime = null
 var waitTime = 10 // wait time in seconds
 var maxTemp = 50
@@ -40,32 +41,43 @@ app.get('/ping', (req, res) => {
 
 app.get('/currTemp', (req, res) => {
     res.header('Access-Control-Allow-Origin','*')
-    res.status(200).send(`${tempData[300]}`)
+    if (req.query['unit'] == 'F') {
+        res.status(200).send(`${tempDataFarenheit[300]}`)
+    } else {
+        res.status(200).send(`${tempDataCelcius[300]}`)
+    }
 })
 
 // Returns an array of length 300 of all temperature data point
 app.get('/tempData', (req, res) => {
     res.header('Access-Control-Allow-Origin','*')
-    res.status(200).send(tempData)
+    if (req.query['unit'] == 'F') {
+        res.status(200).send(tempDataFarenheit)
+    } else {
+        res.status(200).send(tempDataCelcius)
+    }
 })
 
 // Gets a temperature reading from the box every second. If no reading then inserts null value
 setInterval(function() {
     // GET TEMPERATURE DATA FROM BOX (Should be in celcius)
-    var temp = Math.floor(Math.random() * 40) + 13;
+    var temp = Math.floor(Math.random() * 60) - 10;
     if (temp <= minTemp) {
         sendNotification(temp, 'min')
     } else if (temp >= maxTemp) {
         sendNotification(temp, 'max')
     }
 
-    if (temp > 50) {
-        tempData.push(null)
+    if (temp < -4) {
+        tempDataCelcius.push(null)
+        tempDataFarenheit.push(null)
     } else {
-        tempData.push(temp) // Adds new temp from box to end of array
+        tempDataCelcius.push(temp) // Adds new temp from box to end of array
+        tempDataFarenheit.push(((temp * (9/5)) + 32).toFixed(1))
     }
     
-    tempData.shift() // Removes first (oldest) element from array
+    tempDataCelcius.shift() // Removes first (oldest) element from array
+    tempDataFarenheit.shift() // Removes first (oldest) element from array
 }, 1000);
 
 app.put('/notifications', (req, res) => {

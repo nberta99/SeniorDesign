@@ -1,5 +1,6 @@
 <template>
   <div class="temperature">
+    <h4 style="text-decoration: underline;">Current Temperature</h4>
     <h1 id="currTempVal">No Current Temperature Data</h1>
   </div>
 </template>
