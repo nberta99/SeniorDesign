@@ -17,10 +17,15 @@ var cellNumbers = [null]
 var minNotificationTime = null
 var maxNotificationTime = null
 
-// Base url and the description of the API
-app.get('/', (req, res) => {
-    res.sendFile(path.join(__dirname, '/index.html'))
-})
+// // Base url and the description of the API
+// app.get('/', (req, res) => {
+//     res.sendFile(path.join(__dirname, '/index.html'))
+// })
+
+// Serve a file in sub-directory provided name
+// app.get('/file/:filename', (req, res) => {
+//     res.sendFile(path.join(__dirname, req.params.filename))
+// })
 
 // Used to press button on box to turn on display
 app.get('/press', (req, res) => {
@@ -35,7 +40,7 @@ app.get('/ping', (req, res) => {
 
 app.get('/currTemp', (req, res) => {
     res.header('Access-Control-Allow-Origin','*')
-    res.status(200).send(`${tempData[300]} °C`)
+    res.status(200).send(`${tempData[300]}`)
 })
 
 // Returns an array of length 300 of all temperature data point
