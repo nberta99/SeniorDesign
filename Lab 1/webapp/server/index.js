@@ -14,37 +14,69 @@ var maxTemp = 50
 var minTemp = 10
 var minText = 'Temperature has fallen below minimum threshold'
 var maxText = 'Temperature has exceeded the maximum threshold'
-var cellNumbers = 8885552121
+var cellNumbers = 3195551234
 var minNotificationTime = null
 var maxNotificationTime = null
+var buttonPress = false
+var probe = false
+var connected = false
+var promptMessage = "Unit not connected"
+var addedMsg = ''
+
+function notConected() {
+    addTempData('null')
+    connected = false
+    promptMessage = "Unit not connected"
+}
+
+var timer = setInterval(notConected, 2000);
 
 // // Base url and the description of the API
 // app.get('/', (req, res) => {
 //     res.sendFile(path.join(__dirname, '/index.html'))
 // })
 
-// Serve a file in sub-directory provided name
-// app.get('/file/:filename', (req, res) => {
-//     res.sendFile(path.join(__dirname, req.params.filename))
-// })
-
 // Used to press button on box to turn on display
 app.get('/press', (req, res) => {
+    buttonPress = true
     res.status(200).send('pressed button') // Toggle button on box
+    // setTimeout(buttonClick, 10000)
 })
 
 // Heartbeat of system. Used to have the box let the server know it's alive
 app.get('/ping', (req, res) => {
+    clearInterval(timer);
+    console.log(req.query)
     lastAliveTime = Date.now()
-    res.status(200).send('pong') // Send box 'heartbeat'
+    connected = true
+    probe = req.query.probe
+    if (probe == "false") {
+        promptMessage = 'Probe not connected'
+    }
+    addTempData(req.query.temp)
+    if(buttonPress) {
+        res.status(200).send('pong,pressed') // Send box 'heartbeat'
+        buttonPress = false
+    } else {
+        res.status(200).send('pong') // Send box 'heartbeat'
+    }
+    timer = setInterval(notConected, 2000);
 })
 
 app.get('/currTemp', (req, res) => {
     res.header('Access-Control-Allow-Origin','*')
     if (req.query['unit'] == 'F') {
-        res.status(200).send(`${tempDataFarenheit[300]}`)
+        if (probe == 'false' || connected == false) {
+            res.status(200).send(promptMessage)
+        } else {
+            res.status(200).send(`${tempDataFarenheit[300]}°F`)
+        }
     } else {
-        res.status(200).send(`${tempDataCelcius[300]}`)
+        if (probe == 'false' || connected == false) {
+            res.status(200).send(promptMessage)
+        } else {
+            res.status(200).send(`${tempDataCelcius[300]}°C`)
+        }
     }
 })
 
@@ -60,33 +92,32 @@ app.get('/tempData', (req, res) => {
 
 // TODO Make function for getting data from box. Gets temperature (in C) and status of push button
 
+// need to know when box on, if probe connected
+
 // If no ping in less than interval timer then dont request data from box
 
 // If no ping request after so many seconds stop the interval timer and requesting data from box
 // Once ping comes back or is hit again then resume the timer for getting data
 
 // Gets a temperature reading from the box every second. If no reading then inserts null value
-setInterval(function() {
+function addTempData(temp) {
     // GET TEMPERATURE DATA FROM BOX (Should be in celcius)
-    var temp = Math.floor(Math.random() * 60) - 10;
-    
-    if (temp <= minTemp) {
-        sendNotification(temp, 'min')
-    } else if (temp >= maxTemp) {
-        sendNotification(temp, 'max')
-    }
-
-    if (temp < -4) {
-        tempDataCelcius.push(null)
-        tempDataFarenheit.push(null)
-    } else {
+    if (temp != 'null') {
+        temp = parseFloat(temp)
+        if (temp < minTemp) {
+            sendNotification(temp, 'min')
+        } else if (temp > maxTemp) {
+            sendNotification(temp, 'max')
+        }
         tempDataCelcius.push(temp) // Adds new temp from box to end of array
         tempDataFarenheit.push(((temp * (9/5)) + 32).toFixed(1))
+    } else {
+        tempDataCelcius.push(null)
+        tempDataFarenheit.push(null)
     }
-    
     tempDataCelcius.shift() // Removes first (oldest) element from array
     tempDataFarenheit.shift() // Removes first (oldest) element from array
-}, 1000);
+}
 
 app.post('/notifications', (req, res) => {
     res.header('Access-Control-Allow-Origin','*')

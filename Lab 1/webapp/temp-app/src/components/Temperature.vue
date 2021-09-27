@@ -36,7 +36,7 @@ export default {
         if (response.data == null) {
           ctx.innerHTML = "No Current Temperature Data"
         } else {
-          ctx.innerHTML = response.data + '°' + tempUnit
+          ctx.innerHTML = response.data
         }
 
       })

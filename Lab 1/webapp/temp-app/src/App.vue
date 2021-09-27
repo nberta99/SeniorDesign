@@ -1,19 +1,19 @@
 <template>
   <div id="app">
     <h2>Temperature Sensor UI</h2>
-    <!-- <TempComponents/> -->
+    <TempComponents/>
     <NotificationInfo/>
   </div>
 </template>
 
 <script>
-// import TempComponents from './components/TempComponents.vue'
+import TempComponents from './components/TempComponents.vue'
 import NotificationInfo from './components/NotificationInfo.vue'
 
 export default {
   name: 'App',
   components: {
-    // TempComponents,
+    TempComponents,
     NotificationInfo
   }
 }

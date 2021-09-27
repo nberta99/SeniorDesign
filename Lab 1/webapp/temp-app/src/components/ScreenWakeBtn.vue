@@ -5,6 +5,8 @@
 </template>
 
 <script>
+import Axios from 'axios';
+
 export default {
     name: 'ScreenWakeBtn',
     data() {
@@ -13,8 +15,11 @@ export default {
     },
 
     methods: {
-        handleClick: function(){
-            console.log('Wake Screen')
+        async handleClick() {
+            let url = "http://localhost:3000/press"
+            Axios.get(url).then((response) => {
+                console.log(response)
+            })
         }
     }
 }
