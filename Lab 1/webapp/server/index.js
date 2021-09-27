@@ -90,15 +90,6 @@ app.get('/tempData', (req, res) => {
     }
 })
 
-// TODO Make function for getting data from box. Gets temperature (in C) and status of push button
-
-// need to know when box on, if probe connected
-
-// If no ping in less than interval timer then dont request data from box
-
-// If no ping request after so many seconds stop the interval timer and requesting data from box
-// Once ping comes back or is hit again then resume the timer for getting data
-
 // Gets a temperature reading from the box every second. If no reading then inserts null value
 function addTempData(temp) {
     // GET TEMPERATURE DATA FROM BOX (Should be in celcius)

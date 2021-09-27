@@ -6,10 +6,10 @@
         <form>
             <p>
                 Cell #:
-                <input v-model="form.cell" placeholder="888-555-0123" disabled/>
+                <input v-model="form.cell" placeholder="8885550123" disabled/>
             </p>
             <p>
-                Minimum Temperature:
+                Minimum Temperature (°C):
                 <input v-model="form.minTemp" placeholder="-10" disabled/>
             </p>
             <p>
@@ -17,7 +17,7 @@
                 <input v-model="form.minText" placeholder="It's cold" disabled/>
             </p>
             <p>
-                Maximum Temperature:
+                Maximum Temperature (°C):
                 <input v-model="form.maxTemp" placeholder="100" disabled/>
             </p>
             <p>
@@ -38,7 +38,7 @@ export default {
     data() {
         return {
             form: {
-                cell: '888-555-9876',
+                cell: 8885559876,
                 minTemp: -10,
                 maxTemp: 100,
                 minText: "It's cold",
