@@ -1,10 +1,10 @@
 const express = require('express')
-const path = require('path');
+const path = require('path')
 const app = express()
 const port = 3000
 
-app.use(express.json())
 app.use(express.urlencoded({ extended: true }))
+app.use(express.json())
 
 var tempDataCelcius = Array(301).fill(null)
 var tempDataFarenheit = Array(301).fill(null)
@@ -14,7 +14,7 @@ var maxTemp = 50
 var minTemp = 10
 var minText = 'Temperature has fallen below minimum threshold'
 var maxText = 'Temperature has exceeded the maximum threshold'
-var cellNumbers = [null]
+var cellNumbers = 8885552121
 var minNotificationTime = null
 var maxNotificationTime = null
 
@@ -58,10 +58,18 @@ app.get('/tempData', (req, res) => {
     }
 })
 
+// TODO Make function for getting data from box. Gets temperature (in C) and status of push button
+
+// If no ping in less than interval timer then dont request data from box
+
+// If no ping request after so many seconds stop the interval timer and requesting data from box
+// Once ping comes back or is hit again then resume the timer for getting data
+
 // Gets a temperature reading from the box every second. If no reading then inserts null value
 setInterval(function() {
     // GET TEMPERATURE DATA FROM BOX (Should be in celcius)
     var temp = Math.floor(Math.random() * 60) - 10;
+    
     if (temp <= minTemp) {
         sendNotification(temp, 'min')
     } else if (temp >= maxTemp) {
@@ -80,20 +88,19 @@ setInterval(function() {
     tempDataFarenheit.shift() // Removes first (oldest) element from array
 }, 1000);
 
-app.put('/notifications', (req, res) => {
-    console.log(req.body)
-    maxTemp = req.body.max
-    minTemp = req.body.min
+app.post('/notifications', (req, res) => {
+    res.header('Access-Control-Allow-Origin','*')
+    maxTemp = req.body.maxTemp
+    minTemp = req.body.minTemp
     minText = req.body.minText
     maxText = req.body.maxText
-    cellNumbers = req.body.cellnums
+    cellNumbers = req.body.cell
     res.status(200).send()
 })
 
 app.get('/notifications', (req, res) => {
-    console.log(sendNotification(-24, 'min'))
-    console.log(sendNotification(212, 'max'))
-    res.status(200).send(`${minTemp}|${maxTemp}|${minText}|${maxText}|${cellNumbers}`)
+    res.header('Access-Control-Allow-Origin','*')
+    res.status(200).json({minTemp:minTemp, minText:minText, maxTemp:maxTemp, maxText:maxText, cell:cellNumbers})
 })
 
 function sendNotification(temp, bound) {

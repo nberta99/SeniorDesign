@@ -44,15 +44,18 @@ export default {
     
     setInterval(function() {
       getTempData()
-    }, 700)
+    }, 500)
   }
 }
 </script>
 
 <!-- Add "scoped" attribute to limit CSS to this component only -->
 <style scoped>
-h3 {
-  margin: 40px 0 0;
+h4 {
+  margin: 20px 0 0;
+}
+h1 {
+  margin: 15px 0;
 }
 ul {
   list-style-type: none;

@@ -63,7 +63,7 @@ export default {
 
     setInterval(function() {
       getTempData()
-    }, 700)
+    }, 500)
   }
 }
 </script>
