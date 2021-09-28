@@ -17,8 +17,8 @@ export default {
     methods: {
         async handleClick() {
             let url = "http://localhost:3000/press"
-            Axios.get(url).then((response) => {
-                console.log(response)
+            Axios.get(url).then(() => {
+                // console.log(response)
             })
         }
     }

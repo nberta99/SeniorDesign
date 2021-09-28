@@ -2,19 +2,22 @@ const express = require('express')
 const path = require('path')
 const app = express()
 const port = 3000
+const twilio = require('twilio');
 
 app.use(express.urlencoded({ extended: true }))
 app.use(express.json())
 
+// Find your account sid and auth token in your Twilio account Console.
+var client = new twilio('AC2f4ca5e7892131849ce0aae6e4f51326', '42df125b62e1d8eaec6c15ea2fc6885c');
 var tempDataCelcius = Array(301).fill(null)
 var tempDataFarenheit = Array(301).fill(null)
 var lastAliveTime = null
-var waitTime = 10 // wait time in seconds
+var waitTime = 30 // wait time in seconds
 var maxTemp = 50
 var minTemp = 10
 var minText = 'Temperature has fallen below minimum threshold'
 var maxText = 'Temperature has exceeded the maximum threshold'
-var cellNumbers = 3195551234
+var cellNumbers = "8158427363"
 var minNotificationTime = null
 var maxNotificationTime = null
 var buttonPress = false
@@ -22,6 +25,7 @@ var probe = false
 var connected = false
 var promptMessage = "Unit not connected"
 var addedMsg = ''
+var twilioNumber = "+13192148850"
 
 function notConected() {
     addTempData('null')
@@ -46,7 +50,7 @@ app.get('/press', (req, res) => {
 // Heartbeat of system. Used to have the box let the server know it's alive
 app.get('/ping', (req, res) => {
     clearInterval(timer);
-    console.log(req.query)
+    // console.log(req.query)
     lastAliveTime = Date.now()
     connected = true
     probe = req.query.probe
@@ -116,7 +120,7 @@ app.post('/notifications', (req, res) => {
     minTemp = req.body.minTemp
     minText = req.body.minText
     maxText = req.body.maxText
-    cellNumbers = req.body.cell
+    cellNumbers = `${req.body.cell}`
     res.status(200).send()
 })
 
@@ -130,14 +134,26 @@ function sendNotification(temp, bound) {
     if (bound == 'min') {
         if (minNotificationTime + (1000 * waitTime) < Date.now()) {
             minNotificationTime = Date.now()
-            return(minText + tempVals + `\nThreshold: (${minTemp}°C/${((minTemp * (9/5)) + 32).toFixed(1)}°F)`)
+            // Send the text message.
+            client.messages.create({
+                to: `+1${cellNumbers}`,
+                from: `${twilioNumber}`,
+                body: `${minText} ${tempVals}\nThreshold: (${minTemp}°C/${((minTemp * (9/5)) + 32).toFixed(1)}°F)`
+            });
+            return("Cold notification")
         } else {
             return(null)
         }
     } else if (bound == 'max') {
         if (maxNotificationTime + (1000 * waitTime) < Date.now()) {
             maxNotificationTime = Date.now()
-            return(maxText + tempVals + `\nThreshold: (${maxTemp}°C/${((maxTemp * (9/5)) + 32).toFixed(1)}°F)`)
+            // Send the text message.
+            client.messages.create({
+                to: `+1${cellNumbers}`,
+                from: `${twilioNumber}`,
+                body: `${maxText} ${tempVals}\nThreshold: (${maxTemp}°C/${((maxTemp * (9/5)) + 32).toFixed(1)}°F)`
+            });
+            return("Hot notification")
         } else {
             return(null)
         }

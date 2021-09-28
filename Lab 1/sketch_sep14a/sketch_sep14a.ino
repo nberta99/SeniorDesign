@@ -37,11 +37,11 @@ const int ledPin =  10;
 bool probeConnected = false;
 bool lcdOn = false;
 
-char ssid[] = "";        // your network SSID (name)
-char pass[] = "";    // your network password (use for WPA, or use as key for WEP)
+char ssid[] = "UI-DeviceNet";        // your network SSID (name)
+char pass[] = "UI-DeviceNet";    // your network password (use for WPA, or use as key for WEP)
 int status = WL_IDLE_STATUS;     // the Wifi radio's status
 int    HTTP_PORT   = 3000;
-char   HOST_NAME[] = "192.168.1.117"; // hostname of web server:
+char   HOST_NAME[] = "172.17.113.124"; // hostname of web server:
 
 WiFiClient client;
 HttpClient http = HttpClient(client, HOST_NAME, HTTP_PORT);
@@ -49,12 +49,14 @@ HttpClient http = HttpClient(client, HOST_NAME, HTTP_PORT);
 void setup() {
   // initialize the LED pin as an output:
   pinMode(ledPin, OUTPUT);
-  
+  digitalWrite(ledPin, HIGH);
   // set up the LCD's number of columns and rows:
   lcd.begin(16, 2);
 
   lcd.clear();
-  lcd.print("MAX31855 test");
+  lcd.print("Temp. Sense");
+  lcd.setCursor(0, 1);
+  lcd.print("Starting...");
   // wait for MAX chip to stabilize
   delay(500);
   if (!thermocouple.begin()) {
@@ -70,7 +72,9 @@ void setup() {
 
   lcd.clear();
   lcd.setCursor(0, 0);
-  lcd.print("Connecting to network");
+  lcd.print("Connecting to");
+  lcd.setCursor(0, 1);
+  lcd.print("network...");
   // attempt to connect to Wifi network
   while (status != WL_CONNECTED) {
 //    Serial.print("Attempting to connect to network: ");
@@ -86,6 +90,7 @@ void setup() {
    lcd.clear();
    lcd.setCursor(0, 0);
    lcd.print("Connected to network");
+   digitalWrite(ledPin, LOW);
 }
 
 void loop() {
@@ -101,20 +106,26 @@ void loop() {
    lcd.setCursor(0, 1);
    if (isnan(c)) {
      probeConnected = false;
-     // turn LED on:
-     digitalWrite(ledPin, LOW);
+     if (!lcdOn) {
+       digitalWrite(ledPin, HIGH); // LCD On
+     } else {
+      digitalWrite(ledPin, LOW); // LCD Off
+     }
      lcd.print("T/C Problem");
      // HTTP request to server
      http.get("/ping?probe=false&temp=null");
      int statusCode = http.responseStatusCode();
      String response = http.responseBody();
-     if (response == "pong,pressed") {
-       toggleDisplay();
-     }
+//     if (response == "pong,pressed") {
+//       toggleDisplay();
+//     }
    } else {
      probeConnected = true;
-     // turn LED off:
-     digitalWrite(ledPin, LOW);
+     if (lcdOn) {
+      digitalWrite(ledPin, HIGH); // LCD On
+     } else {
+      digitalWrite(ledPin, LOW); // LCD Off
+     }
      lcd.print("C = ");
      lcd.print(c);
      lcd.print("  ");
@@ -129,8 +140,6 @@ void loop() {
      }
    }
 
-
-//   delay(500);
 }
 
 void toggleDisplay() {
