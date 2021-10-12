@@ -51,10 +51,9 @@ while (running):
     if (msg == "Beam Break\r\n"):
         # Send message to phone
         sendAlertMsg("Beam break detected")
+        running = False
     elif (msg == "Shut down\r\n"):
         running = False
-    else:
-        print("-- " + msg)
 else:
     print("Exiting")
 exit()

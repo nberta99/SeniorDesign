@@ -12,7 +12,7 @@ void loop() {
   
   // Serial monitor notify that beam break was detected
   if (breakDetected) {
-    Serial.println("Beam Break")
+    Serial.println("Beam Break");
     Serial.flush();
   }
 }
