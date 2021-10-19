@@ -1,6 +1,7 @@
 #!/usr/bin/python
 import serial
 import time
+from datetime import datetime
 import smtplib
 import secrets # Just holds variables for credentials
 from email.mime.text import MIMEText
@@ -37,7 +38,7 @@ def sendAlertMsg(alertMsg):
     msg['From'] = email
     msg['To'] = sms_gateway
     msg['Subject'] = ""
-    body = alertMsg
+    body = alertMsg + " " + datetime.now().strftime('%Y-%m-%d %I:%M:%S %p')
     msg.attach(MIMEText(body, 'plain'))
 
     # Send message and quit server
@@ -48,12 +49,16 @@ def sendAlertMsg(alertMsg):
 while (running):
     # Serial read section
     msg = ard.readline().decode('ascii') #(ard.inWaiting()) # read all characters in buffer
-    if (msg == "Beam Break\r\n"):
+    print(msg)
+    if (msg == "Beam broken\r\n"):
         # Send message to phone
+        beamBroken = True
         sendAlertMsg("Beam break detected")
-        running = False
-    elif (msg == "Shut down\r\n"):
-        running = False
+        while(beamBroken):
+            msg = ard.readline().decode('ascii') #(ard.inWaiting()) # read all characters in buffer
+            print(msg)
+            if (msg == "Beam detected\r\n"):
+                beamBroken = False
 else:
     print("Exiting")
 exit()
