@@ -10,7 +10,7 @@ class LoginPage extends React.Component {
 
         // redirect to home if already logged in
         if (authenticationService.currentUserValue) { 
-            this.props.history.push('/');
+            this.props.history.push('/user');
         }
     }
 
@@ -22,7 +22,7 @@ class LoginPage extends React.Component {
         authenticationService.login('user', 'user')
             .then(
                 user => {
-                    const { from } = this.props.location.state || { from: { pathname: "/" } };
+                    const { from } = this.props.location.state || { from: { pathname: "/user" } };
                     this.props.history.push(from);
                 })
         document.getElementById('message').setAttribute("class", "alert alert-info");
@@ -33,11 +33,13 @@ class LoginPage extends React.Component {
         return (
             <div>
                 <div id="message" className="d-none alert alert-info">
-                    <strong id="strongMsg">Normal User</strong>
+                    <strong id="strongMsg">User</strong>
                 </div>
-                <h2>Login</h2>
-                <button className="btn btn-primary mr-1" onClick={this.loginUser}>Guest</button>
-                <button className="btn btn-primary" onClick={this.showLogin}>Admin</button>
+                <div class="mx-auto">
+                    <h2>Select User</h2>
+                    <button className="btn btn-primary mr-1" onClick={this.loginUser}>Guest</button>
+                    <button className="btn btn-primary" onClick={this.showLogin}>Admin</button>
+                </div>
                 <Formik
                     initialValues={{
                         username: '',
@@ -52,7 +54,7 @@ class LoginPage extends React.Component {
                         authenticationService.login(username, password)
                             .then(
                                 user => {
-                                    const { from } = this.props.location.state || { from: { pathname: "/" } };
+                                    const { from } = this.props.location.state || { from: { pathname: "/admin" } };
                                     this.props.history.push(from);
                                 },
                                 error => {

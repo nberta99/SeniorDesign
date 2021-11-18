@@ -7,6 +7,7 @@ import { PrivateRoute } from '@/_components';
 import { HomePage } from '@/HomePage';
 import { AdminPage } from '@/AdminPage';
 import { LoginPage } from '@/LoginPage';
+import { UserPage } from '@/UserPage';
 
 class App extends React.Component {
     constructor(props) {
@@ -32,14 +33,15 @@ class App extends React.Component {
 
     render() {
         const { currentUser, isAdmin } = this.state;
-        // localStorage.setItem('currentUser', JSON.stringify({"id":0,"username":"user","firstName":"Normal","lastName":"User","role":"User","token":"fake-jwt-token.User"}));
         return (
             <Router history={history}>
                 <div>
+                    {/* Below code for website navbar */}
                     {currentUser &&
                         <nav className="navbar navbar-expand navbar-dark bg-dark">
                             <div className="navbar-nav">
-                                <Link to="/" className="nav-item nav-link">Home</Link>
+                                {/* <Link to="/" className="nav-item nav-link">Home</Link> */}
+                                {<Link to="/user" className="nav-item nav-link">User</Link>}
                                 {isAdmin && <Link to="/admin" className="nav-item nav-link">Admin</Link>}
                                 <a onClick={this.logout} className="nav-item nav-link">Logout</a>
                             </div>
@@ -50,6 +52,7 @@ class App extends React.Component {
                             <div className="row">
                                 <div className="col-md-6 offset-md-3">
                                     <PrivateRoute exact path="/" component={HomePage} />
+                                    <PrivateRoute exact path="/user" component={UserPage} />
                                     <PrivateRoute path="/admin" roles={[Role.Admin]} component={AdminPage} />
                                     <Route path="/login" component={LoginPage} />
                                 </div>

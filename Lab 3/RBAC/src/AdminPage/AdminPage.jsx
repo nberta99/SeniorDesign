@@ -19,8 +19,10 @@ class AdminPage extends React.Component {
         const { users } = this.state;
         return (
             <div>
-                <h1>Admin</h1>
-                <p>This page can only be accessed by administrators.</p>
+                <h1>Calendar Admin</h1>
+                <div>
+                    <p>Calendar - Create | Modify | Delete</p>
+                </div>
                 <div>
                     All users from secure (admin only) api end point:
                     {users &&
