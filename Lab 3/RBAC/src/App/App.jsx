@@ -32,6 +32,7 @@ class App extends React.Component {
 
     render() {
         const { currentUser, isAdmin } = this.state;
+        // localStorage.setItem('currentUser', JSON.stringify({"id":0,"username":"user","firstName":"Normal","lastName":"User","role":"User","token":"fake-jwt-token.User"}));
         return (
             <Router history={history}>
                 <div>

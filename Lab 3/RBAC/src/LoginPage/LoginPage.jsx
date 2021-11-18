@@ -14,14 +14,30 @@ class LoginPage extends React.Component {
         }
     }
 
+    showLogin() {
+        document.getElementById('form').setAttribute("class", "");
+    }
+
+    loginUser = () => {
+        authenticationService.login('user', 'user')
+            .then(
+                user => {
+                    const { from } = this.props.location.state || { from: { pathname: "/" } };
+                    this.props.history.push(from);
+                })
+        document.getElementById('message').setAttribute("class", "alert alert-info");
+        document.getElementById('strongMsg').innerHTML = "Guest user logged in. Redirecting to homepage";
+    }
+    
     render() {
         return (
             <div>
-                <div className="alert alert-info">
-                    <strong>Normal User</strong> - U: user P: user<br />
-                    <strong>Administrator</strong> - U: admin P: admin
+                <div id="message" className="d-none alert alert-info">
+                    <strong id="strongMsg">Normal User</strong>
                 </div>
                 <h2>Login</h2>
+                <button className="btn btn-primary mr-1" onClick={this.loginUser}>Guest</button>
+                <button className="btn btn-primary" onClick={this.showLogin}>Admin</button>
                 <Formik
                     initialValues={{
                         username: '',
@@ -46,7 +62,7 @@ class LoginPage extends React.Component {
                             );
                     }}
                     render={({ errors, status, touched, isSubmitting }) => (
-                        <Form>
+                        <Form id="form" class="d-none">
                             <div className="form-group">
                                 <label htmlFor="username">Username</label>
                                 <Field name="username" type="text" className={'form-control' + (errors.username && touched.username ? ' is-invalid' : '')} />
