@@ -10,6 +10,7 @@
     "start": "webpack-dev-server --open"
   },
   "dependencies": {
+    "axios": "^0.24.0",
     "formik": "^1.4.2",
     "history": "^4.7.2",
     "react": "^16.0.0",
