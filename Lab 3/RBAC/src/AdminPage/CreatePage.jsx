@@ -33,10 +33,22 @@ class CreatePage extends React.Component {
         this.setState({ [e.target.name]: e.target.value });
     }
 
-    change = (e) => {
-        let dval = document.getElementById('timeslice').value;
-        // this.setState({ timeslot: dval });
-        console.log(this.timeslot);
+    // change = (e) => {
+    //     let dval = document.getElementById('timeslice').value;
+    //     // this.setState({ timeslot: dval });
+    //     console.log(this.timeslot);
+    // }
+
+    addElem = () => {
+        let yes = document.getElementById('timeslice').value.split(', ');
+        document.getElementById("timeData").innerHTML = '';
+        // console.log(yes);
+        yes.forEach(function(childSnapshot) {
+            var node = document.createElement("p");
+            var textnode = document.createTextNode(childSnapshot);
+            node.appendChild(textnode);
+            document.getElementById("timeData").appendChild(node);
+        });
     }
 
     onSubmit = (e) => {
@@ -82,7 +94,6 @@ class CreatePage extends React.Component {
                             <option value="Alaska"></option>
                             <option value="Hawaii-Aleutian"></option>
                         </datalist>
-                        {/* <input type="text" name="timezone" value={timezone} onChange={this.onChange}/> */}
                     </label><br/>
                     <label>Event Notes (optional):
                         <input type="text" name="notes" value={notes} onChange={this.onChange}/>
@@ -97,7 +108,6 @@ class CreatePage extends React.Component {
                                 <TimePicker hideSeconds />
                             ]}
                         />
-                        {/* <input type="datetime-local" id="calDeadline" name="calDeadline" value={calDeadline} onChange={this.onChange}/> */}
                     </label><br/>
                     <label>Votes Per Timeslot (optional):
                         <input type="number" id="votesPerSlot" min="1" max="100000" step="1" placeholder="1" name="votesPerSlot" value={votesPerSlot} onChange={this.onChange}/>
@@ -110,7 +120,7 @@ class CreatePage extends React.Component {
                             id="timeslice"
                             name="timeslot"
                             value={timeslot}
-                            // onChange={this.change}
+                            onClose={this.addElem}
                             multiple
                             format="MM/DD/YYYY"
                             sort
@@ -119,8 +129,8 @@ class CreatePage extends React.Component {
                             ]}
                             required
                         />
-                        {/* <input type="text" name="timeslot" value={timeslot} onChange={this.onChange} required/> */}
                     </label><br/>
+                    <div id="timeData"/>
                     <button id="submitBtn" className="btn btn-primary" type="submit">
                         Publish
                     </button>

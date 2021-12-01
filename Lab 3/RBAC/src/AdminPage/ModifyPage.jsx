@@ -71,13 +71,33 @@ class ModifyPage extends React.Component {
             timeslot: calData[e.target.value].timeslot.split(", ")
         });
         document.getElementById('updateBtn').disabled = false;
-        // console.log(calData[e.target.value].timeslot.split(", "));
+        document.getElementById("timeData").innerHTML = '';
+        let yes = calData[e.target.value].timeslot.split(", ");
+        yes.forEach(function(childSnapshot) {
+            var node = document.createElement("p");
+            // node.value = recordId;
+            var textnode = document.createTextNode(childSnapshot);
+            node.appendChild(textnode);
+            document.getElementById("timeData").appendChild(node);
+        });
 
         if (e.target.value == "") {
             document.getElementById('form').setAttribute("class", "d-none");
         } else {
             document.getElementById('form').setAttribute("class", "");
         }
+    }
+
+    addElem = () => {
+        let yes = document.getElementById('timeslice').value.split(', ');
+        document.getElementById("timeData").innerHTML = '';
+        // console.log(yes);
+        yes.forEach(function(childSnapshot) {
+            var node = document.createElement("p");
+            var textnode = document.createTextNode(childSnapshot);
+            node.appendChild(textnode);
+            document.getElementById("timeData").appendChild(node);
+        });
     }
 
     onSubmit = (e) => {
@@ -125,7 +145,6 @@ class ModifyPage extends React.Component {
                             <option value="Alaska"></option>
                             <option value="Hawaii-Aleutian"></option>
                         </datalist>
-                        {/* <input type="text" name="timezone" value={timezone} onChange={this.onChange}/> */}
                     </label><br/>
                     <label>Event Notes (optional):
                         <input type="text" name="notes" value={notes} onChange={this.onChange}/>
@@ -134,13 +153,11 @@ class ModifyPage extends React.Component {
                         <DatePicker
                             id="calDeadline"
                             value={calDeadline}
-                            // onChange={this.onChange}
                             format="MM/DD/YYYY hh:mm a"
                             plugins={[
                                 <TimePicker hideSeconds />
                             ]}
                         />
-                        {/* <input type="datetime-local" id="calDeadline" name="calDeadline" value={calDeadline} onChange={this.onChange}/> */}
                     </label><br/>
                     <label>Votes Per Timeslot (optional):
                         <input type="number" id="votesPerSlot" min="1" max="100000" step="1" placeholder="1" name="votesPerSlot" value={votesPerSlot} onChange={this.onChange}/>
@@ -153,7 +170,7 @@ class ModifyPage extends React.Component {
                             id="timeslice"
                             name="timeslot"
                             value={timeslot}
-                            // onChange={this.change}
+                            onClose={this.addElem}
                             multiple
                             format="MM/DD/YYYY"
                             sort
@@ -162,8 +179,8 @@ class ModifyPage extends React.Component {
                             ]}
                             required
                         />
-                        {/* <input type="text" name="timeslot" value={timeslot} onChange={this.onChange} required/> */}
                     </label><br/>
+                    <div id="timeData"/>
                     <button id="updateBtn" className="btn btn-primary" type="submit">
                         Update
                     </button>
