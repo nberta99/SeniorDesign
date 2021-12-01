@@ -1,7 +1,10 @@
 import React from 'react';
 import Firebase from 'firebase';
 import {app} from '../firebase-config';
+import DatePicker from "react-multi-date-picker";
+import DatePanel from "react-multi-date-picker/plugins/date_panel";
 import { userService, authenticationService } from '@/_services';
+import TimePicker from 'react-multi-date-picker/plugins/time_picker';
 
 class CreatePage extends React.Component {
     constructor(props) {
@@ -30,6 +33,12 @@ class CreatePage extends React.Component {
         this.setState({ [e.target.name]: e.target.value });
     }
 
+    change = (e) => {
+        let dval = document.getElementById('timeslice').value;
+        // this.setState({ timeslot: dval });
+        console.log(this.timeslot);
+    }
+
     onSubmit = (e) => {
         e.preventDefault();
         const { calName, locName, timezone, notes, calDeadline, votesPerSlot, votesPerUser, timeslot } = this.state;
@@ -43,10 +52,10 @@ class CreatePage extends React.Component {
             locName: locName,
             timezone: timezone,
             notes: notes,
-            calDeadline: calDeadline,
+            calDeadline: document.getElementById('calDeadline').value,
             votesPerSlot: votesPerSlot,
             votesPerUser: votesPerUser,
-            timeslot: timeslot
+            timeslot: document.getElementById('timeslice').value
         });
         document.getElementById('submitBtn').disabled = true;
     }
@@ -79,7 +88,16 @@ class CreatePage extends React.Component {
                         <input type="text" name="notes" value={notes} onChange={this.onChange}/>
                     </label><br/>
                     <label>Calendar Deadline (optional):
-                        <input type="datetime-local" id="calDeadline" name="calDeadline" value={calDeadline} onChange={this.onChange}/>
+                        <DatePicker
+                            id="calDeadline"
+                            value={calDeadline}
+                            // onChange={this.onChange}
+                            format="MM/DD/YYYY hh:mm a"
+                            plugins={[
+                                <TimePicker hideSeconds />
+                            ]}
+                        />
+                        {/* <input type="datetime-local" id="calDeadline" name="calDeadline" value={calDeadline} onChange={this.onChange}/> */}
                     </label><br/>
                     <label>Votes Per Timeslot (optional):
                         <input type="number" id="votesPerSlot" min="1" max="100000" step="1" placeholder="1" name="votesPerSlot" value={votesPerSlot} onChange={this.onChange}/>
@@ -88,7 +106,20 @@ class CreatePage extends React.Component {
                         <input type="number" id="votesPerUser" min="1" max="100000" step="1" placeholder="1" name="votesPerUser" value={votesPerUser} onChange={this.onChange}/>
                     </label><br/>
                     <label>Timeslots*:
-                        <input type="text" name="timeslot" value={timeslot} onChange={this.onChange} required/>
+                        <DatePicker
+                            id="timeslice"
+                            name="timeslot"
+                            value={timeslot}
+                            // onChange={this.change}
+                            multiple
+                            format="MM/DD/YYYY"
+                            sort
+                            plugins={[
+                                <DatePanel />
+                            ]}
+                            required
+                        />
+                        {/* <input type="text" name="timeslot" value={timeslot} onChange={this.onChange} required/> */}
                     </label><br/>
                     <button id="submitBtn" className="btn btn-primary" type="submit">
                         Publish
