@@ -64,7 +64,16 @@ class CreatePage extends React.Component {
                         <input type="text" name="locName" value={locName} onChange={this.onChange}/>
                     </label><br/>
                     <label>Timezone (optional):
-                        <input type="text" name="timezone" value={timezone} onChange={this.onChange}/>
+                        <input list="timezones" id="timezoneList" name="timezone" value={timezone} onChange={this.onChange} />
+                        <datalist id="timezones">
+                            <option value="Eastern"></option>
+                            <option value="Central"></option>
+                            <option value="Mountain"></option>
+                            <option value="Pacific"></option>
+                            <option value="Alaska"></option>
+                            <option value="Hawaii-Aleutian"></option>
+                        </datalist>
+                        {/* <input type="text" name="timezone" value={timezone} onChange={this.onChange}/> */}
                     </label><br/>
                     <label>Event Notes (optional):
                         <input type="text" name="notes" value={notes} onChange={this.onChange}/>
@@ -82,7 +91,7 @@ class CreatePage extends React.Component {
                         <input type="text" name="timeslot" value={timeslot} onChange={this.onChange} required/>
                     </label><br/>
                     <button id="submitBtn" className="btn btn-primary" type="submit">
-                        Submit
+                        Publish
                     </button>
                 </form>
             </div>

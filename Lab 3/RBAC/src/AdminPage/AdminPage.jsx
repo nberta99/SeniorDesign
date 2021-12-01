@@ -9,13 +9,13 @@ class AdminPage extends React.Component {
 
         this.state = {
             users: null,
-            viewForm: true, // set back to false
+            viewForm: false, // set back to false
             type: null
         };
 
         this.onEdit = this.onEdit.bind(this);
 
-        this.calendarState = <DeletePage/>; // set back to null
+        this.calendarState = null; // set back to null
     }
 
     componentDidMount() {
@@ -47,6 +47,9 @@ class AdminPage extends React.Component {
                 <div>
                     {(this.state.viewForm) ?
                     this.calendarState : ''}
+                </div>
+                <div>
+                    Choose from options to create, modify, or delete a calendar poll
                 </div>
                 {/* <div>
                     All users from secure (admin only) api end point:
