@@ -1,5 +1,6 @@
 import React from 'react';
-
+import Firebase from 'firebase';
+import {app} from '../firebase-config';
 import { userService, authenticationService } from '@/_services';
 
 class CreatePage extends React.Component {
@@ -32,25 +33,22 @@ class CreatePage extends React.Component {
     onSubmit = (e) => {
         e.preventDefault();
         const { calName, locName, timezone, notes, calDeadline, votesPerSlot, votesPerUser, timeslot } = this.state;
-        console.log(calName, locName, timezone, notes, calDeadline, votesPerSlot, votesPerUser, timeslot);
-        
-        db.collection("calendars").add({
-            name: calName,
-            time_slots: timeslot
-        })
-        .then((docRef) => {
-            alert("Data Successfully Submitted");
-        })
-        .catch((error) => {
-            console.error("Error adding document: ", error);
-        });
+        // console.log(calName, locName, timezone, notes, calDeadline, votesPerSlot, votesPerUser, timeslot);
 
-        // Create calendar entry
-        // axios.post('/', { calName })
-        //   .then((result) => {
-        //     //access the results here....
-               // console.log(new Date().valueOf());
-        //   });
+        const rootRef = Firebase.database().ref();
+        // const storesRef = rootRef.child(`${new Date().valueOf()}`);
+        const newStoreRef = rootRef.push();
+        newStoreRef.set({
+            calName: calName,
+            locName: locName,
+            timezone: timezone,
+            notes: notes,
+            calDeadline: calDeadline,
+            votesPerSlot: votesPerSlot,
+            votesPerUser: votesPerUser,
+            timeslot: timeslot
+        });
+        document.getElementById('submitBtn').disabled = true;
     }
 
     render() {
@@ -83,7 +81,7 @@ class CreatePage extends React.Component {
                     <label>Timeslots*:
                         <input type="text" name="timeslot" value={timeslot} onChange={this.onChange} required/>
                     </label><br/>
-                    <button className="btn btn-primary" type="submit">
+                    <button id="submitBtn" className="btn btn-primary" type="submit">
                         Submit
                     </button>
                 </form>

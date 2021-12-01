@@ -15,7 +15,7 @@ class AdminPage extends React.Component {
 
         this.onEdit = this.onEdit.bind(this);
 
-        this.calendarState = <CreatePage/>; // set back to null
+        this.calendarState = <DeletePage/>; // set back to null
     }
 
     componentDidMount() {

@@ -1,5 +1,6 @@
 import React from 'react';
-
+import Firebase from 'firebase';
+import {app} from '../firebase-config';
 import { userService, authenticationService } from '@/_services';
 
 class DeletePage extends React.Component {
@@ -15,11 +16,29 @@ class DeletePage extends React.Component {
 
     componentDidMount() {
         const { currentUser } = this.state;
+        this.getUserData();
         // userService.getById(currentUser.id).then(userFromApi => this.setState({ userFromApi }));
     }
 
+    getUserData = () => {
+        let ref = Firebase.database().ref("/");
+        ref.on('value', function(snapshot) {
+            snapshot.forEach(function(childSnapshot) {
+                var childData = childSnapshot.val();
+                var recordId = childSnapshot.ref_.path.pieces_[0];
+                var node = document.createElement("option");
+                node.value = recordId;
+                node.id = recordId;
+                var textnode = document.createTextNode(childData.calName);
+                node.appendChild(textnode);
+                document.getElementById("cals").appendChild(node);  
+            });
+        });
+    };
+
     change = (e) => {
         this.setState({ selectCal: e.target.value });
+        document.getElementById('deleteBtn').disabled = false;
         if (e.target.value == "") {
             document.getElementById('delete').setAttribute("class", "d-none");
         } else {
@@ -32,11 +51,11 @@ class DeletePage extends React.Component {
         const { selectCal } = this.state;
         console.log(selectCal);
 
-        // Delete a selected calendar
-        // axios.post('/', { calName })
-        //   .then((result) => {
-        //     //access the results here....
-        //   });
+        let ref = Firebase.database().ref("/");
+        ref.child(selectCal).remove();
+
+        document.getElementById(selectCal).remove();
+        document.getElementById('deleteBtn').disabled = true;
     }
 
     render() {
@@ -47,12 +66,9 @@ class DeletePage extends React.Component {
                 <label htmlFor="cals">Choose a calendar event:</label>
                 <select name="cals" id="cals" onChange={this.change} value={this.state.value}>
                     <option value="" defaultValue>--Please select a calendar--</option>
-                    <option value="l1s">Lab 1 Signup</option>
-                    <option value="l2s">Lab 2 Signup</option>
-                    <option value="oh">Office Hours</option>
                 </select>
                 <div id="delete" className="d-none">
-                    <button className="btn btn-primary" onClick={this.onSelect}>
+                    <button id="deleteBtn" className="btn btn-primary" onClick={this.onSelect}>
                         Delete
                     </button>
                 </div>

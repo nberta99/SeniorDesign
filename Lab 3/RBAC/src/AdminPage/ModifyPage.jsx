@@ -1,5 +1,6 @@
 import React from 'react';
-
+import Firebase from 'firebase';
+import {app} from '../firebase-config';
 import { userService, authenticationService } from '@/_services';
 
 class ModifyPage extends React.Component {
@@ -9,6 +10,7 @@ class ModifyPage extends React.Component {
         this.state = {
             currentUser: authenticationService.currentUserValue,
             userFromApi: null,
+            calData: {},
             selectCal: '',
             calName: 'Calendar',
             locName: '',
@@ -23,16 +25,57 @@ class ModifyPage extends React.Component {
 
     componentDidMount() {
         const { currentUser } = this.state;
+        this.getUserData();
         // userService.getById(currentUser.id).then(userFromApi => this.setState({ userFromApi }));
     }
+
+    // writeUserData = () => {
+    //     Firebase.database()
+    //       .ref("/")
+    //       .set(this.state);
+    //     console.log("Update data");
+    // };
+
+    getUserData = () => {
+        const { calData } = this.state;
+        let ref = Firebase.database().ref("/");
+        ref.on('value', function(snapshot) {
+            snapshot.forEach(function(childSnapshot) {
+                var childData = childSnapshot.val();
+                var recordId = childSnapshot.ref_.path.pieces_[0];
+                calData[recordId] = childData;
+                // Object.entries(childData).forEach(([key, value]) => {
+                // console.log(`${value.calName} (${key})`);
+                var node = document.createElement("option");
+                node.value = recordId;
+                var textnode = document.createTextNode(childData.calName);
+                node.appendChild(textnode);
+                document.getElementById("cals").appendChild(node);  
+                // });
+            });
+        });
+        this.setState({calData: calData});
+    };
 
     onChange = (e) => {
         this.setState({ [e.target.name]: e.target.value });
     }
 
     change = (e) => {
-        this.setState({ selectCal: e.target.value });
-        // console.log(e.target.value);
+        const { calData } = this.state;
+        this.setState({ 
+            selectCal: e.target.value,
+            calName: calData[e.target.value].calName,
+            locName: calData[e.target.value].locName,
+            timezone: calData[e.target.value].timezone,
+            notes: calData[e.target.value].notes,
+            calDeadline: calData[e.target.value].calDeadline,
+            votesPerSlot: calData[e.target.value].votesPerSlot,
+            votesPerUser: calData[e.target.value].votesPerUser,
+            timeslot: calData[e.target.value].timeslot
+        });
+        document.getElementById('updateBtn').disabled = false;
+
         if (e.target.value == "") {
             document.getElementById('form').setAttribute("class", "d-none");
         } else {
@@ -43,13 +86,20 @@ class ModifyPage extends React.Component {
     onSubmit = (e) => {
         e.preventDefault();
         const { selectCal, calName, locName, timezone, notes, calDeadline, votesPerSlot, votesPerUser, timeslot } = this.state;
-        console.log(selectCal, calName, locName, timezone, notes, calDeadline, votesPerSlot, votesPerUser, timeslot);
+        // console.log(selectCal, calName, locName, timezone, notes, calDeadline, votesPerSlot, votesPerUser, timeslot);
         
-        // Modify the selected calendar
-        // axios.post('/', { calName })
-        //   .then((result) => {
-        //     //access the results here....
-        //   });
+        let ref = Firebase.database().ref();
+        ref.child(selectCal).update({
+            calName: calName,
+            locName: locName,
+            timezone: timezone,
+            notes: notes,
+            calDeadline: calDeadline,
+            votesPerSlot: votesPerSlot,
+            votesPerUser: votesPerUser,
+            timeslot: timeslot
+        });
+        document.getElementById('updateBtn').disabled = true;
     }
 
     render() {
@@ -60,9 +110,6 @@ class ModifyPage extends React.Component {
                 <label htmlFor="cals">Choose a calendar event:</label>
                 <select name="cals" id="cals" onChange={this.change} value={this.state.value}>
                     <option value="" value>--Please select a calendar--</option>
-                    <option value="l1s">Lab 1 Signup</option>
-                    <option value="l2s">Lab 2 Signup</option>
-                    <option value="oh">Office Hours</option>
                 </select>
                 <form id="form" className="d-none" onSubmit={this.onSubmit}>
                     <label>Event (Calendar) Title*:
@@ -89,7 +136,7 @@ class ModifyPage extends React.Component {
                     <label>Timeslots*:
                         <input type="text" name="timeslot" value={timeslot} onChange={this.onChange} required/>
                     </label><br/>
-                    <button className="btn btn-primary" type="submit">
+                    <button id="updateBtn" className="btn btn-primary" type="submit">
                         Update
                     </button>
                 </form>
