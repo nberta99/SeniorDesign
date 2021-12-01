@@ -1,7 +1,6 @@
 import React from 'react';
 
 import { userService, authenticationService } from '@/_services';
-import axios from 'axios';
 
 class CreatePage extends React.Component {
     constructor(props) {
@@ -10,14 +9,14 @@ class CreatePage extends React.Component {
         this.state = {
             currentUser: authenticationService.currentUserValue,
             userFromApi: null,
-            calName: null,
+            calName: '',
             locName: '',
             timezone: '',
             notes: '',
             calDeadline: '',
             votesPerSlot: 1,
             votesPerUser: 1,
-            timeslot: null
+            timeslot: ''
         };
     }
 
@@ -32,13 +31,25 @@ class CreatePage extends React.Component {
 
     onSubmit = (e) => {
         e.preventDefault();
-        // get our form data out of state
         const { calName, locName, timezone, notes, calDeadline, votesPerSlot, votesPerUser, timeslot } = this.state;
-
         console.log(calName, locName, timezone, notes, calDeadline, votesPerSlot, votesPerUser, timeslot);
+        
+        db.collection("calendars").add({
+            name: calName,
+            time_slots: timeslot
+        })
+        .then((docRef) => {
+            alert("Data Successfully Submitted");
+        })
+        .catch((error) => {
+            console.error("Error adding document: ", error);
+        });
+
+        // Create calendar entry
         // axios.post('/', { calName })
         //   .then((result) => {
         //     //access the results here....
+               // console.log(new Date().valueOf());
         //   });
     }
 

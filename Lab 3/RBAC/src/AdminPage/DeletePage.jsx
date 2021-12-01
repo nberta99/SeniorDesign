@@ -8,7 +8,8 @@ class DeletePage extends React.Component {
 
         this.state = {
             currentUser: authenticationService.currentUserValue,
-            userFromApi: null
+            userFromApi: null,
+            selectCal: ''
         };
     }
 
@@ -18,7 +19,7 @@ class DeletePage extends React.Component {
     }
 
     change = (e) => {
-        this.setState({ value: e.target.value });
+        this.setState({ selectCal: e.target.value });
         if (e.target.value == "") {
             document.getElementById('delete').setAttribute("class", "d-none");
         } else {
@@ -28,12 +29,10 @@ class DeletePage extends React.Component {
 
     onSelect = (e) => {
         e.preventDefault();
-        
-        // const { calName, locName, timezone, notes, calDeadline, votesPerSlot, votesPerUser, timeslot } = this.state;
-        const { value } = this.state;
-        console.log(value);
-        // console.log(calName, locName, timezone, notes, calDeadline, votesPerSlot, votesPerUser, timeslot);
-        
+        const { selectCal } = this.state;
+        console.log(selectCal);
+
+        // Delete a selected calendar
         // axios.post('/', { calName })
         //   .then((result) => {
         //     //access the results here....
@@ -45,9 +44,9 @@ class DeletePage extends React.Component {
         return (
             <div>
                 <h3>Delete Calendar</h3>
-                <label for="cals">Choose a calendar event:</label>
+                <label htmlFor="cals">Choose a calendar event:</label>
                 <select name="cals" id="cals" onChange={this.change} value={this.state.value}>
-                    <option value="" selected>--Please select a calendar--</option>
+                    <option value="" defaultValue>--Please select a calendar--</option>
                     <option value="l1s">Lab 1 Signup</option>
                     <option value="l2s">Lab 2 Signup</option>
                     <option value="oh">Office Hours</option>
