@@ -224,14 +224,17 @@ class CreatePage extends React.Component {
                         <input
                             className={"input " + (this.state.error && " has-error")}
                             value={this.state.value}
-                            placeholder="Type or paste email addresses and press `Enter`..."
+                            placeholder="Type/paste email addresses and press `Enter`..."
                             onKeyDown={this.handleKeyDown}
                             onChange={this.handleChange}
                             onPaste={this.handlePaste}
+                            style={{width: "350px"}}
                         />
 
                         {this.state.error && <p className="error">{this.state.error}</p>}
                     </label><br/>
+
+                    <label>* Required fields</label><br/>
                 
                     <button id="submitBtn" className="btn btn-primary" type="submit">
                         Publish
