@@ -22,7 +22,9 @@ class ModifyPage extends React.Component {
             calDeadline: '',
             votesPerSlot: 1,
             votesPerUser: 1,
-            timeslot: ''
+            timeslot: '',
+            intervalBounds: '',
+            intervalTimes: ['11:00 am - 11:05 am']
         };
     }
 
@@ -40,6 +42,7 @@ class ModifyPage extends React.Component {
                 var childData = childSnapshot.val();
                 var recordId = childSnapshot.ref_.path.pieces_[0];
                 calData[recordId] = childData;
+                // console.log(childData);
                 // Object.entries(childData).forEach(([key, value]) => {
                 // console.log(`${value.calName} (${key})`);
                 var node = document.createElement("option");
@@ -54,11 +57,16 @@ class ModifyPage extends React.Component {
     };
 
     onChange = (e) => {
+        if ((e.target.name == 'intervalBounds') && (e.target.value.split(',').length == 3)) {
+            document.getElementById('intervalBtn').setAttribute('class', 'btn btn-primary');
+        } else if ((e.target.name == 'intervalBounds') && (e.target.value.split(',').length != 3)) {
+            document.getElementById('intervalBtn').setAttribute('class', 'd-none btn btn-primary');
+        }
         this.setState({ [e.target.name]: e.target.value });
     }
 
     change = (e) => {
-        const { calData } = this.state;
+        const { calData, intervalTimes } = this.state;
         this.setState({ 
             selectCal: e.target.value,
             calName: calData[e.target.value].calName,
@@ -68,15 +76,17 @@ class ModifyPage extends React.Component {
             calDeadline: calData[e.target.value].calDeadline,
             votesPerSlot: calData[e.target.value].votesPerSlot,
             votesPerUser: calData[e.target.value].votesPerUser,
-            timeslot: calData[e.target.value].timeslot.split(", ")
+            timeslot: calData[e.target.value].timeslot.split(", "),
+            intervalTimes: calData[e.target.value].intervalTimes
         });
+        // console.log(calData[e.target.value].intervalTimes);
         document.getElementById('updateBtn').disabled = false;
         document.getElementById("timeData").innerHTML = '';
         let yes = calData[e.target.value].timeslot.split(", ");
         yes.forEach(function(childSnapshot) {
             var node = document.createElement("p");
             // node.value = recordId;
-            var textnode = document.createTextNode(childSnapshot);
+            var textnode = document.createTextNode(childSnapshot + " (" + calData[e.target.value].intervalTimes + ")");
             node.appendChild(textnode);
             document.getElementById("timeData").appendChild(node);
         });
@@ -88,13 +98,61 @@ class ModifyPage extends React.Component {
         }
     }
 
-    addElem = () => {
+    getIntervals = (intervalArray) => {
+        const { intervalTimes } = this.state;
+        let startString = intervalArray[0];
+        let endString = intervalArray[1];
+        let intervalString = intervalArray[2];
+        // console.log(startString, endString, intervalString);
+        var start = startString.split(":");
+        var end = endString.split(":");
+        var interval = intervalString.split(":");
+        var startInMinutes = start[0]*60+start[1]*1;
+        var endInMinutes = end[0]*60+end[1]*1;
+        let intMins = interval[0]*60+interval[1]*1;
+        let intMinsFloor = Math.floor((endInMinutes-startInMinutes)/interval[0])
+        var intervalInMinutes = ((interval.length >= 2) ? ((intMins >= 5) ? intMins : 5) : ((intMinsFloor >= 5) ? intMinsFloor : 5));
+        var times = [];
+        var intervalsOfTime = [];
+        var tt = startInMinutes;
+        var ap = ['am', 'pm']; // AM-PM
+
+        //loop to increment the time and push results in array
+        for (var i=0; tt<=endInMinutes; i++) {
+        var hh = Math.floor(tt/60); // getting hours of day in 0-24 format
+        var toTime = (((hh == 0) || (hh == 12)) ? 12 : (hh % 12));
+        var mm = (tt%60); // getting minutes of the hour in 0-55 format
+        times[i] = ("0" + (toTime)).slice(-2) + ':' + ("0" + mm).slice(-2) + " " + ap[Math.floor(hh/12)]; // pushing data in array in [00:00 - 12:00 AM/PM format]
+        tt = tt + intervalInMinutes;
+        }
+        
+        for(var i = 0; i < times.length-1; i++)
+          intervalsOfTime.push(times[i] + " - " + times[i+1])
+        
+        // console.log(intervalsOfTime);
+        this.setState({
+            intervalTimes: intervalsOfTime
+        })
+        
         let yes = document.getElementById('timeslice').value.split(', ');
         document.getElementById("timeData").innerHTML = '';
-        // console.log(yes);
+        // console.log(intervalTimes);
         yes.forEach(function(childSnapshot) {
             var node = document.createElement("p");
-            var textnode = document.createTextNode(childSnapshot);
+            var textnode = document.createTextNode(childSnapshot + " (" + intervalsOfTime + ")");
+            node.appendChild(textnode);
+            document.getElementById("timeData").appendChild(node);
+        });
+    }
+
+    addElem = () => {
+        const { intervalTimes } = this.state;
+        let yes = document.getElementById('timeslice').value.split(', ');
+        document.getElementById("timeData").innerHTML = '';
+        // console.log(intervalTimes);
+        yes.forEach(function(childSnapshot) {
+            var node = document.createElement("p");
+            var textnode = document.createTextNode(childSnapshot + " (" + intervalTimes + ")");
             node.appendChild(textnode);
             document.getElementById("timeData").appendChild(node);
         });
@@ -102,7 +160,7 @@ class ModifyPage extends React.Component {
 
     onSubmit = (e) => {
         e.preventDefault();
-        const { selectCal, calName, locName, timezone, notes, calDeadline, votesPerSlot, votesPerUser, timeslot } = this.state;
+        const { selectCal, calName, locName, timezone, notes, calDeadline, votesPerSlot, votesPerUser, timeslot, intervalTimes } = this.state;
         // console.log(selectCal, calName, locName, timezone, notes, calDeadline, votesPerSlot, votesPerUser, timeslot);
         
         let ref = Firebase.database().ref();
@@ -114,13 +172,15 @@ class ModifyPage extends React.Component {
             calDeadline: document.getElementById('calDeadline').value,
             votesPerSlot: votesPerSlot,
             votesPerUser: votesPerUser,
-            timeslot: document.getElementById('timeslice').value
+            timeslot: document.getElementById('timeslice').value,
+            intervalTimes: intervalTimes,
+            timeslotData: ""
         });
         document.getElementById('updateBtn').disabled = true;
     }
 
     render() {
-        const { currentUser, userFromApi, calName, locName, timezone, notes, calDeadline, votesPerSlot, votesPerUser, timeslot  } = this.state;
+        const { currentUser, userFromApi, calName, locName, timezone, notes, calDeadline, votesPerSlot, votesPerUser, timeslot, intervalBounds } = this.state;
         return (
             <div>
                 <h3>Modify Calendar</h3>
@@ -180,6 +240,16 @@ class ModifyPage extends React.Component {
                             required
                         />
                     </label><br/>
+                    <label>Interval Bounds (optional):
+                        <input type="text" name="intervalBounds" value={intervalBounds} onChange={this.onChange} placeholder='11:00,12:15,:15'/>
+                        <button id="intervalBtn" className="d-none btn btn-primary" type="button" onClick={ () => this.getIntervals(intervalBounds.split(','))}>
+                            Create Interval
+                        </button>
+                        {/* <input type="text" name="endTime" value={endTime} onChange={this.onChange}/> */}
+                    </label><br/>
+                    {/* <label>Time Interval (optional):
+                        <input type="text" name="timeInterval" value={timeInterval} onChange={this.onChange}/>
+                    </label><br/> */}
                     <div id="timeData"/>
                     <button id="updateBtn" className="btn btn-primary" type="submit">
                         Update

@@ -3,8 +3,8 @@ import Firebase from 'firebase';
 import {app} from '../firebase-config';
 import DatePicker from "react-multi-date-picker";
 import DatePanel from "react-multi-date-picker/plugins/date_panel";
-import { userService, authenticationService } from '@/_services';
 import TimePicker from 'react-multi-date-picker/plugins/time_picker';
+import { userService, authenticationService } from '@/_services';
 
 class CreatePage extends React.Component {
     constructor(props) {
@@ -20,7 +20,9 @@ class CreatePage extends React.Component {
             calDeadline: '',
             votesPerSlot: 1,
             votesPerUser: 1,
-            timeslot: ''
+            timeslot: '',
+            intervalBounds: '',
+            intervalTimes: ['11:00 am - 11:05 am']
         };
     }
 
@@ -30,6 +32,11 @@ class CreatePage extends React.Component {
     }
 
     onChange = (e) => {
+        if ((e.target.name == 'intervalBounds') && (e.target.value.split(',').length == 3)) {
+            document.getElementById('intervalBtn').setAttribute('class', 'btn btn-primary');
+        } else if ((e.target.name == 'intervalBounds') && (e.target.value.split(',').length != 3)) {
+            document.getElementById('intervalBtn').setAttribute('class', 'd-none btn btn-primary');
+        }
         this.setState({ [e.target.name]: e.target.value });
     }
 
@@ -39,13 +46,61 @@ class CreatePage extends React.Component {
     //     console.log(this.timeslot);
     // }
 
+    getIntervals = (intervalArray) => {
+        const { intervalTimes } = this.state;
+        let startString = intervalArray[0];
+        let endString = intervalArray[1];
+        let intervalString = intervalArray[2];
+        // console.log(startString, endString, intervalString);
+        var start = startString.split(":");
+        var end = endString.split(":");
+        var interval = intervalString.split(":");
+        var startInMinutes = start[0]*60+start[1]*1;
+        var endInMinutes = end[0]*60+end[1]*1;
+        let intMins = interval[0]*60+interval[1]*1;
+        let intMinsFloor = Math.floor((endInMinutes-startInMinutes)/interval[0])
+        var intervalInMinutes = ((interval.length >= 2) ? ((intMins >= 5) ? intMins : 5) : ((intMinsFloor >= 5) ? intMinsFloor : 5));
+        var times = [];
+        var intervalsOfTime = [];
+        var tt = startInMinutes;
+        var ap = ['am', 'pm']; // AM-PM
+
+        //loop to increment the time and push results in array
+        for (var i=0; tt<=endInMinutes; i++) {
+        var hh = Math.floor(tt/60); // getting hours of day in 0-24 format
+        var toTime = (((hh == 0) || (hh == 12)) ? 12 : (hh % 12));
+        var mm = (tt%60); // getting minutes of the hour in 0-55 format
+        times[i] = ("0" + (toTime)).slice(-2) + ':' + ("0" + mm).slice(-2) + " " + ap[Math.floor(hh/12)]; // pushing data in array in [00:00 - 12:00 AM/PM format]
+        tt = tt + intervalInMinutes;
+        }
+        
+        for(var i = 0; i < times.length-1; i++)
+          intervalsOfTime.push(times[i] + " - " + times[i+1])
+        
+        // console.log(intervalsOfTime);
+        this.setState({
+            intervalTimes: intervalsOfTime
+        })
+        
+        let yes = document.getElementById('timeslice').value.split(', ');
+        document.getElementById("timeData").innerHTML = '';
+        // console.log(intervalTimes);
+        yes.forEach(function(childSnapshot) {
+            var node = document.createElement("p");
+            var textnode = document.createTextNode(childSnapshot + " (" + intervalsOfTime + ")");
+            node.appendChild(textnode);
+            document.getElementById("timeData").appendChild(node);
+        });
+    }
+
     addElem = () => {
+        const { intervalTimes } = this.state;
         let yes = document.getElementById('timeslice').value.split(', ');
         document.getElementById("timeData").innerHTML = '';
         // console.log(yes);
         yes.forEach(function(childSnapshot) {
             var node = document.createElement("p");
-            var textnode = document.createTextNode(childSnapshot);
+            var textnode = document.createTextNode(childSnapshot + " (" + intervalTimes + ")");
             node.appendChild(textnode);
             document.getElementById("timeData").appendChild(node);
         });
@@ -53,11 +108,10 @@ class CreatePage extends React.Component {
 
     onSubmit = (e) => {
         e.preventDefault();
-        const { calName, locName, timezone, notes, calDeadline, votesPerSlot, votesPerUser, timeslot } = this.state;
+        const { calName, locName, timezone, notes, calDeadline, votesPerSlot, votesPerUser, timeslot, intervalTimes } = this.state;
         // console.log(calName, locName, timezone, notes, calDeadline, votesPerSlot, votesPerUser, timeslot);
 
         const rootRef = Firebase.database().ref();
-        // const storesRef = rootRef.child(`${new Date().valueOf()}`);
         const newStoreRef = rootRef.push();
         newStoreRef.set({
             calName: calName,
@@ -67,13 +121,15 @@ class CreatePage extends React.Component {
             calDeadline: document.getElementById('calDeadline').value,
             votesPerSlot: votesPerSlot,
             votesPerUser: votesPerUser,
-            timeslot: document.getElementById('timeslice').value
+            timeslot: document.getElementById('timeslice').value,
+            intervalTimes: intervalTimes,
+            timeslotData: ""
         });
         document.getElementById('submitBtn').disabled = true;
     }
 
     render() {
-        const { currentUser, userFromApi, calName, locName, timezone, notes, calDeadline, votesPerSlot, votesPerUser, timeslot } = this.state;
+        const { currentUser, userFromApi, calName, locName, timezone, notes, calDeadline, votesPerSlot, votesPerUser, timeslot, intervalBounds } = this.state;
         return (
             <div>
                 <h3>Create Calendar</h3>
@@ -102,7 +158,6 @@ class CreatePage extends React.Component {
                         <DatePicker
                             id="calDeadline"
                             value={calDeadline}
-                            // onChange={this.onChange}
                             format="MM/DD/YYYY hh:mm a"
                             plugins={[
                                 <TimePicker hideSeconds />
@@ -129,6 +184,13 @@ class CreatePage extends React.Component {
                             ]}
                             required
                         />
+                    </label><br/>
+                    <label>Interval Bounds (optional):
+                        <input type="text" name="intervalBounds" value={intervalBounds} onChange={this.onChange} placeholder='11:00,12:15,:15'/>
+                        <button id="intervalBtn" className="d-none btn btn-primary" type="button" onClick={ () => this.getIntervals(intervalBounds.split(','))}>
+                            Create Interval
+                        </button>
+                        {/* <input type="text" name="endTime" value={endTime} onChange={this.onChange}/> */}
                     </label><br/>
                     <div id="timeData"/>
                     <button id="submitBtn" className="btn btn-primary" type="submit">
