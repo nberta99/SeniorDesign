@@ -122,7 +122,7 @@ class ModifyPage extends React.Component {
         var hh = Math.floor(tt/60); // getting hours of day in 0-24 format
         var toTime = (((hh == 0) || (hh == 12)) ? 12 : (hh % 12));
         var mm = (tt%60); // getting minutes of the hour in 0-55 format
-        times[i] = ("0" + (toTime)).slice(-2) + ':' + ("0" + mm).slice(-2) + " " + ap[Math.floor(hh/12)]; // pushing data in array in [00:00 - 12:00 AM/PM format]
+        times[i] = ("0" + (toTime)).slice(-2) + ':' + ("0" + mm).slice(-2) + ap[Math.floor(hh/12)]; // pushing data in array in [00:00 - 12:00 AM/PM format]
         tt = tt + intervalInMinutes;
         }
         
@@ -163,6 +163,8 @@ class ModifyPage extends React.Component {
         const { selectCal, calName, locName, timezone, notes, calDeadline, votesPerSlot, votesPerUser, timeslot, intervalTimes } = this.state;
         // console.log(selectCal, calName, locName, timezone, notes, calDeadline, votesPerSlot, votesPerUser, timeslot);
         
+        let arrLen = document.getElementById('timeslice').value.split(',').length * intervalTimes.length;
+
         let ref = Firebase.database().ref();
         ref.child(selectCal).update({
             calName: calName,
@@ -170,11 +172,11 @@ class ModifyPage extends React.Component {
             timezone: timezone,
             notes: notes,
             calDeadline: document.getElementById('calDeadline').value,
-            votesPerSlot: votesPerSlot,
-            votesPerUser: votesPerUser,
+            votesPerSlot: parseInt(votesPerSlot),
+            votesPerUser: parseInt(votesPerUser),
             timeslot: document.getElementById('timeslice').value,
             intervalTimes: intervalTimes,
-            timeslotData: ""
+            timeslotData: Array.apply(null, Array(arrLen)).map(function () {return "";})
         });
         document.getElementById('updateBtn').disabled = true;
     }
