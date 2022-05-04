@@ -27,21 +27,17 @@ Serial serial_port = null;        // the serial port
 Button btn_up, btn_dn;
 Button btn_connect, btn_disconnect, btn_list_refresh;
 Button btn_get_status, btn_prime_purge;
-//Button btn_empty_pump_1, btn_purge_pump_1;
-//Button btn_empty_pump_2, btn_purge_pump_2;
-//Button btn_empty_pump_3, btn_purge_pump_3;
-//Button btn_empty_pump_4, btn_purge_pump_4;
 Button btn_volume_send, btn_offset_send, btn_heartrate_send;
 Button btn_start_pump, btn_stop_pump;
-String serial_list; // List of serial ports
-int serial_list_index = 0;// Currently selected serial port 
+String serial_list = "No Serial Devices Found"; // List of serial ports
+int serial_list_index = -1;// Currently selected serial port 
 int num_serial_ports = 0; // Number of serial ports in the list
 
 ControlP5 cp5v, cp5o, cp5m, cp5b;
 
 Textfield volumeInput, offsetInput, messageBox, heartrateInput;
 
-String message_text = "Not connected";
+String message_text = "Not Connected";
 
 void setup() {
   size (470, 275); // Set the window size
@@ -91,27 +87,14 @@ void setup() {
   btn_get_status = new Button("Get Status", 145, 220, 100, 25);
   btn_prime_purge = new Button("Prime/Purge", 35, 220, 100, 25);
   
-  //// Pump #1
-  //btn_empty_pump_1 = new Button("Empty Pump #1", 10, 115, 100, 25);
-  //btn_purge_pump_1 = new Button("Purge Pump #1", 120, 115, 100, 25);
+  if (Serial.list().length != 0) {
+    // Get the list of serial ports on the computer
+    serial_list_index = 0;
+    serial_list = Serial.list()[serial_list_index];
   
-  //// Pump #2
-  //btn_empty_pump_2 = new Button("Empty Pump #2", 10, 150, 100, 25);
-  //btn_purge_pump_2 = new Button("Purge Pump #2", 120, 150, 100, 25);
-  
-  //// Pump #3  
-  //btn_empty_pump_3 = new Button("Empty Pump #3", 10, 185, 100, 25);
-  //btn_purge_pump_3 = new Button("Purge Pump #3", 120, 185, 100, 25);
-  
-  //// Pump #4
-  //btn_empty_pump_4 = new Button("Empty Pump #4", 10, 220, 100, 25);
-  //btn_purge_pump_4 = new Button("Purge Pump #4", 120, 220, 100, 25);
-  
-  // Get the list of serial ports on the computer
-  serial_list = Serial.list()[serial_list_index];
-  
-  // Get the number of serial ports in the list
-  num_serial_ports = Serial.list().length;
+    // Get the number of serial ports in the list
+    num_serial_ports = Serial.list().length;
+  }
 }
 
 //void keyPressed() {
@@ -130,7 +113,7 @@ void serialEvent(Serial p) {
   }
   
   if (p == null) {
-    message_text = "Re-Connect Arduino"; 
+    message_text = "Re-Connect Controller"; 
   }
 }
 
@@ -155,18 +138,20 @@ void mousePressed() {
   
   // Connect button clicked
   if (btn_connect.MouseIsOver()) {
-    if (serial_port == null) {
+    if ((serial_port == null) && (serial_list_index != -1)) {
       try {
-        // connect to the selected serial port
+        // Connect to the selected serial port
         message_text = "Connecting to serial device\nIf message doesn't disappear, reconnect";
         serial_port = new Serial(this, Serial.list()[serial_list_index], 9600);
         //print(serial_port);
         serial_port.readStringUntil('\n');
       } catch (Exception e) {
+        serial_list_index = -1;
         message_text = "Serial connection error" + e;
       }
+    } else {
+      message_text = "No Controllers Found";
     }
-    //println(serial_port);
   }
   
   // Disconnect button clicked
@@ -177,15 +162,23 @@ void mousePressed() {
       serial_port = null;
       message_text = "Controller Disconnected";
     } else {
-      message_text = "No controller connected"; 
+      message_text = "No Controller Connected"; 
     }
   }
   
   // Refresh button clicked
   if (btn_list_refresh.MouseIsOver()) {
-    // get the serial port list and length of the list
-    serial_list = Serial.list()[serial_list_index];
-    num_serial_ports = Serial.list().length;
+    if (Serial.list().length != 0) {
+      // get the serial port list and length of the list
+      serial_list_index = 0;
+      serial_list = Serial.list()[serial_list_index];
+      num_serial_ports = Serial.list().length;
+    } else {
+      serial_list_index = -1;
+      serial_list = "No Serial Devices Found";
+      num_serial_ports = 0;
+      message_text = "No Controllers Found";
+    }
   }
   
   // Send Volume Button Clicked
@@ -202,7 +195,7 @@ void mousePressed() {
     if (!offsetInput.getText().equals("")) {
       SendSerialData("o" + offsetInput.getText()); // Send the values of myTextfield to ToggleButton() and clear textfield
     } else {
-      message_text = "Enter 3 pump offsets as comma-separated in % of beat\n(first offset will be 0) ex. 3,9,12"; 
+      message_text = "Enter pump offsets as comma-separated in % of beat\nex. 0,50,50,0"; 
     }
   }
   
@@ -233,37 +226,6 @@ void mousePressed() {
     SendSerialData("prime/purge");
   }
   
-  //// Pump #1 button clicks
-  //if (btn_empty_pump_1.MouseIsOver()) {
-  //  SendSerialData("e1");
-  //}
-  //if (btn_purge_pump_1.MouseIsOver()) {
-  //  SendSerialData("p1");
-  //}
-  
-  //// Pump #2 button clicks
-  //if (btn_empty_pump_2.MouseIsOver()) {
-  //  SendSerialData("e2");
-  //}
-  //if (btn_purge_pump_2.MouseIsOver()) {
-  //  SendSerialData("p2");
-  //}
-  
-  //// Pump #3 button clicks
-  //if (btn_empty_pump_3.MouseIsOver()) {
-  //  SendSerialData("e3");
-  //}
-  //if (btn_purge_pump_3.MouseIsOver()) {
-  //  SendSerialData("p3");
-  //}
-  
-  //// Pump #4 button clicks
-  //if (btn_empty_pump_4.MouseIsOver()) {
-  //  SendSerialData("e4");
-  //}
-  //if (btn_purge_pump_4.MouseIsOver()) {
-  //  SendSerialData("p4");
-  //}
 }
 
 void draw() {
@@ -275,14 +237,6 @@ void draw() {
   btn_list_refresh.Draw();
   btn_get_status.Draw();
   btn_prime_purge.Draw();
-  //btn_empty_pump_1.Draw();
-  //btn_purge_pump_1.Draw();
-  //btn_empty_pump_2.Draw();
-  //btn_purge_pump_2.Draw();
-  //btn_empty_pump_3.Draw();
-  //btn_purge_pump_3.Draw();
-  //btn_empty_pump_4.Draw();
-  //btn_purge_pump_4.Draw();
   btn_volume_send.Draw();
   btn_offset_send.Draw();
   btn_heartrate_send.Draw();
